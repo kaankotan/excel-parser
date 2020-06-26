@@ -11,23 +11,24 @@ wsSecond = None
 
 def selectFilesFunction():
     GUI = tkinter.Tk()
+    GUI.geometry('640x640')
 
     def setFirstExcel():
         global wbFirst
         global wsFirst
         file_path = filedialog.askopenfilename()
-        print(file_path)
-        wbFirst = load_workbook(file_path)
-        wsFirst = wbFirst.active
+        if(file_path):
+            wbFirst = load_workbook(file_path)
+            wsFirst = wbFirst.active
         
 
     def setSecondExcel():
         global wbSecond
         global wsSecond
         file_path = filedialog.askopenfilename()
-        print(file_path)
-        wbSecond = load_workbook(file_path)
-        wsSecond = wbSecond.active
+        if(file_path):
+            wbSecond = load_workbook(file_path)
+            wsSecond = wbSecond.active
 
     B1 = tkinter.Button(GUI, text = "Excel1", command = setFirstExcel)
     B2 = tkinter.Button(GUI, text = "Excel2", command = setSecondExcel)
@@ -58,14 +59,14 @@ def mainCompareFunction():
             return "%s %s %s" % (self.firstName, self.lastName, self.email)
 
     firstExcelArray = []
-    firstExcelFirstNameCol = ''
-    firstExcelLastNameCol = ''
-    firstExcelEmailCol = ''
+    firstExcelFirstNameCol = 0
+    firstExcelLastNameCol = 0
+    firstExcelEmailCol = 0
 
     secondExcelArray = []
-    secondExcelFirstNameCol = ''
-    secondExcelLastNameCol = ''
-    secondExcelEmailCol = ''
+    secondExcelFirstNameCol = 0
+    secondExcelLastNameCol = 0
+    secondExcelEmailCol = 0
 
     resultAfterEmailCheck = []
     resultAfterNameCheck = []
@@ -92,15 +93,14 @@ def mainCompareFunction():
         if(cell.value == 'Email'):
             secondExcelEmailCol = cell.column
 
-
-    for i in range(2, wsFirst.max_row+ 1):
-        firstExcelArray.append(RowObject(wsFirst[i][firstExcelFirstNameCol - 1].value, wsFirst[i][firstExcelLastNameCol - 1].value, wsFirst[i][firstExcelEmailCol - 1].value))
+    for i in range(2, wsFirst.max_row + 1):
+        firstExcelArray.append(RowObject(wsFirst[i][int(firstExcelFirstNameCol) - 1].value, wsFirst[i][firstExcelLastNameCol - 1].value, wsFirst[i][firstExcelEmailCol - 1].value))
 
     for i in range(2, wsSecond.max_row + 1):
-        secondExcelArray.append(RowObject(wsSecond[i][secondExcelFirstNameCol - 1].value, wsSecond[i][secondExcelLastNameCol - 1].value, wsSecond[i][secondExcelEmailCol - 1].value))
+        secondExcelArray.append(RowObject(wsSecond[i][int(secondExcelFirstNameCol) - 1].value, wsSecond[i][int(secondExcelLastNameCol) - 1].value, wsSecond[i][int(secondExcelEmailCol) - 1].value))
 
     # Compare Function
-    def compareTwoExcels(firstExcelArray, secondExcelArray):
+    def compareEmails(firstExcelArray, secondExcelArray):
         result = []
         remaining1 = []
         remaining2 = []
@@ -117,15 +117,36 @@ def mainCompareFunction():
                 remaining2.append(secondExcelArray[i])
         
         return [result, remaining1, remaining2]
+    
+    def compareNames(firstExcelArray, secondExcelArray):
+        result = []
+        remaining1 = []
+        remaining2 = []
+        for i in range(0, len(firstExcelArray)):
+            if any((firstExcelArray[i].firstName == x.firstName and firstExcelArray[i].lastName == x.lastName) for x in secondExcelArray) and (firstExcelArray[i].firstName != 'none' and firstExcelArray[i].lastName != 'none'):
+                # newMail = str(firstExcelArray[i].email) + str(x.email)
+                # newExcelValue = RowObject(firstExcelArray[i].firstName, firstExcelArray[i].lastName, newMail)
+                result.append(firstExcelArray[i])
+            elif firstExcelArray[i].firstName != 'none' and firstExcelArray[i].lastName != 'none':
+                remaining1.append(firstExcelArray[i])
+        
+        for i in range(0, len(secondExcelArray)):
+            if any((secondExcelArray[i].firstName == x.firstName and secondExcelArray[i].lastName == x.lastName) for x in firstExcelArray) and (secondExcelArray[i].firstName != 'none' and secondExcelArray[i].lastName != 'none'):
+                pass
+            elif secondExcelArray[i].firstName != 'none' and secondExcelArray[i].lastName != 'none':
+                remaining2.append(secondExcelArray[i])
+        
+        return [result, remaining1, remaining2]
+    
 
 
 
-    checkEmails= compareTwoExcels(firstExcelArray, secondExcelArray)
+    checkEmails= compareEmails(firstExcelArray, secondExcelArray)
     resultAfterEmailCheck = checkEmails[0]
     remaining1AfterEmailCheck = checkEmails[1]
     remaining2AfterEmailCheck = checkEmails[2]
 
-    checkNames = compareTwoExcels(remaining1AfterEmailCheck, remaining2AfterEmailCheck)
+    checkNames = compareNames(remaining1AfterEmailCheck, remaining2AfterEmailCheck)
     resultAfterNameCheck = checkNames[0]
     remaining1AfterNameCheck = checkNames[1]
     remaining2AfterNameCheck = checkNames[2]
