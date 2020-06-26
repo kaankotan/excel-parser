@@ -1,6 +1,5 @@
-import json
-import pickle
-import Tkinter, tkFileDialog, tkMessageBox
+import tkinter
+import tkinter.filedialog as filedialog
 from openpyxl import load_workbook
 
 # define global variables
@@ -11,12 +10,12 @@ wbSecond = None
 wsSecond = None
 
 def selectFilesFunction():
-    GUI = Tkinter.Tk()
+    GUI = tkinter.Tk()
 
     def setFirstExcel():
         global wbFirst
         global wsFirst
-        file_path = tkFileDialog.askopenfilename()
+        file_path = filedialog.askopenfilename()
         print(file_path)
         wbFirst = load_workbook(file_path)
         wsFirst = wbFirst.active
@@ -25,14 +24,14 @@ def selectFilesFunction():
     def setSecondExcel():
         global wbSecond
         global wsSecond
-        file_path = tkFileDialog.askopenfilename()
+        file_path = filedialog.askopenfilename()
         print(file_path)
         wbSecond = load_workbook(file_path)
         wsSecond = wbSecond.active
 
-    B1 = Tkinter.Button(GUI, text = "Excel1", command = setFirstExcel)
-    B2 = Tkinter.Button(GUI, text = "Excel2", command = setSecondExcel)
-    B3 = Tkinter.Button(GUI, text = "Compare", command = mainCompareFunction)
+    B1 = tkinter.Button(GUI, text = "Excel1", command = setFirstExcel)
+    B2 = tkinter.Button(GUI, text = "Excel2", command = setSecondExcel)
+    B3 = tkinter.Button(GUI, text = "Compare", command = mainCompareFunction)
 
     B1.pack()
     B2.pack()
@@ -45,7 +44,6 @@ def mainCompareFunction():
     global wbSecond
     global wsFirst
     global wsSecond
-    print 'ENTERED HERE!!!'
     class RowObject:
 
         def __init__(self, firstName, lastName, email):
